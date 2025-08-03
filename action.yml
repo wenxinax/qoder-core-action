@@ -1,0 +1,24 @@
+name: 'Qoder Core Mock'
+description: 'A mock action that simulates the core logic.'
+
+inputs:
+  qoder_token:
+    description: 'Mock token input'
+    required: false
+  prompt:
+    description: 'Mock prompt input'
+    required: false
+
+outputs:
+  result_content:
+    description: 'The mock result content.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Simulate Work and Set Output'
+      id: mock-step
+      shell: bash
+      run: |
+        echo "Mock action is running!"
+        echo "result_content=This is a mock result from qoder-core-action." >> $GITHUB_OUTPUT
