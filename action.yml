@@ -5,9 +5,9 @@ inputs:
   qoder_token:
     description: 'Mock token input'
     required: false
-  prompt:
-    description: 'Mock prompt input'
-    required: false
+  prompt_file_path:
+    description: 'Path to the file containing the prompt.'
+    required: true
 
 outputs:
   result_content:
