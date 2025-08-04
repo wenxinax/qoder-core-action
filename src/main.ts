@@ -6,27 +6,30 @@ import { HttpClient } from '@actions/http-client';
 
 // Function to install dependencies
 async function installDependencies(): Promise<void> {
-  core.info('Installing required dependencies...');
-  
-  return new Promise((resolve, reject) => {
-    const installProcess = spawn('apt-get', ['update', '&&', 'apt-get', 'install', '-y', 'ripgrep', 'fzf'], {
-      shell: true,
-      stdio: 'inherit'
-    });
+  core.info('Installing required dependencies: ripgrep and fzf...');
+
+  return new Promise<void>((resolve) => {
+    const command = `
+      set -e
+      sudo apt-get update
+      sudo apt-get install -y ripgrep fzf
+    `;
+
+    const installProcess = spawn('bash', ['-c', command], { stdio: 'inherit' });
 
     installProcess.on('close', (code) => {
       if (code === 0) {
         core.info('Dependencies installed successfully.');
-        resolve();
       } else {
-        core.warning(`Failed to install dependencies with code ${code}. Continuing anyway...`);
-        resolve(); // Continue even if installation fails
+        core.warning(`Dependency installation failed with code ${code}. The action might not work as expected.`);
       }
+      // Resolve anyway, as the CLI might still work without these dependencies or they might be pre-installed.
+      resolve();
     });
 
     installProcess.on('error', (error) => {
-      core.warning(`Error installing dependencies: ${error.message}. Continuing anyway...`);
-      resolve(); // Continue even if installation fails
+      core.warning(`Error during dependency installation: ${error.message}. The action might not work as expected.`);
+      resolve();
     });
   });
 }
