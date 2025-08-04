@@ -21,4 +21,6 @@ runs:
       shell: bash
       run: |
         echo "Mock action is running!"
+        echo "Reading prompt from ${{ inputs.prompt_file_path }}"
+        cat ${{ inputs.prompt_file_path }}
         echo "result_content=This is a mock result from qoder-core-action." >> $GITHUB_OUTPUT
