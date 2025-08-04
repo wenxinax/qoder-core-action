@@ -25827,13 +25827,11 @@ async function run() {
                 const result = JSON.parse(lastJsonLine);
                 const resultType = result.subtype || 'unknown';
                 const resultContent = result.message?.content?.[0]?.text || '';
-                if (resultType === 'success' && resultContent) {
-                    core.setOutput('result_type', resultType);
-                    core.setOutput('result_content', resultContent);
-                    core.info(`Successfully extracted result. Type: ${resultType}`);
+                if (resultType === 'success') {
+                    core.info('qoder-cli reported success.');
                 }
                 else {
-                    core.setFailed(`Operation failed. Result type: ${resultType}.`);
+                    core.warning(`qoder-cli did not report success. Result type: ${resultType}.`);
                 }
             }
             catch (e) {

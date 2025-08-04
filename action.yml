@@ -15,11 +15,7 @@ inputs:
     description: 'An optional JSON string to configure qoder-cli. This will be written to .qoder-cli.json.'
     required: false
 
-outputs:
-  result_type:
-    description: 'The result type from the qoder-cli output (e.g., success, error).'
-  result_content:
-    description: 'The main content of the result from the qoder-cli.'
+
 
 runs:
   using: 'node20'
