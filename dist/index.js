@@ -25768,6 +25768,7 @@ async function run() {
         // --- 7. Process stdout stream ---
         qoderProcess.stdout.on('data', (data) => {
             const output = data.toString();
+            process.stdout.write(output); // Print the output to the action log
             logStream.write(output);
             const lines = output.split('\n').filter((line) => line.trim() !== '');
             for (const line of lines) {
