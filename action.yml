@@ -11,6 +11,9 @@ inputs:
   dashscope_api_key:
     description: 'The API key for the Dashscope service.'
     required: true
+  config:
+    description: 'An optional JSON string to configure qoder-cli. This will be written to .qoder-cli.json.'
+    required: false
 
 outputs:
   result_type:

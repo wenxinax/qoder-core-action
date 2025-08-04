@@ -4,6 +4,29 @@ import * as path from 'path';
 import { spawn } from 'child_process';
 import { HttpClient } from '@actions/http-client';
 
+// Function to create the .qoder-cli.json file if config is provided
+function createCliConfig(configJson: string): void {
+  if (!configJson) {
+    core.info('No config provided, skipping .qoder-cli.json creation.');
+    return;
+  }
+
+  core.info('Creating .qoder-cli.json from provided config...');
+  try {
+    // Validate if the input is a valid JSON
+    JSON.parse(configJson);
+
+    const configPath = path.join(process.cwd(), '.qoder-cli.json');
+    fs.writeFileSync(configPath, configJson);
+    core.info(`Successfully created ${configPath}`);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to create .qoder-cli.json: ${error.message}. Please ensure the provided config is a valid JSON string.`);
+    }
+    throw error;
+  }
+}
+
 // Function to install dependencies
 async function installDependencies(): Promise<void> {
   core.info('Installing required dependencies: ripgrep and fzf...');
@@ -65,6 +88,7 @@ async function run(): Promise<void> {
     const promptFilePath = core.getInput('prompt_file_path', { required: true });
     const systemPrompt = core.getInput('system_prompt');
     const apiKey = core.getInput('dashscope_api_key', { required: true });
+    const configJson = core.getInput('config');
     const logFilePath = './qoder.log';
 
     // --- 2. Install Dependencies ---
@@ -73,7 +97,10 @@ async function run(): Promise<void> {
     // --- 3. Download and Setup CLI ---
     await setupCli(cliDownloadUrl, cliPath);
 
-    // --- 4. Prepare Log Stream ---
+    // --- 4. Create CLI Config if provided ---
+    createCliConfig(configJson);
+
+    // --- 5. Prepare Log Stream ---
     const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
 
     // --- 5. Prepare Arguments ---
