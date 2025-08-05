@@ -85,11 +85,29 @@ async function run(): Promise<void> {
     // --- 1. Get Inputs ---
     const cliDownloadUrl = 'https://lingma-agents-public.oss-cn-hangzhou.aliyuncs.com/qoder-cli/qoder-cli-linux-amd64';
     const cliPath = path.join(process.cwd(), 'qoder-cli');
-    const promptFilePath = core.getInput('prompt_file_path', { required: true });
+    const prompt = core.getInput('prompt');
+    const promptFilePath = core.getInput('prompt_file_path');
     const systemPrompt = core.getInput('system_prompt');
     const apiKey = core.getInput('dashscope_api_key', { required: true });
     const configJson = core.getInput('config');
     const logFilePath = './qoder.log';
+
+    // Validate and get the prompt content
+    if (prompt && promptFilePath) {
+      throw new Error('The `prompt` and `prompt_file_path` inputs are mutually exclusive. Please provide only one.');
+    }
+
+    let promptContent = '';
+    if (prompt) {
+      promptContent = prompt;
+    } else if (promptFilePath) {
+      if (!fs.existsSync(promptFilePath)) {
+        throw new Error(`Prompt file not found at: ${promptFilePath}`);
+      }
+      promptContent = fs.readFileSync(promptFilePath, 'utf-8');
+    } else {
+      throw new Error('Either the `prompt` or `prompt_file_path` input must be provided.');
+    }
 
     // --- 2. Install Dependencies ---
     await installDependencies();
@@ -103,9 +121,9 @@ async function run(): Promise<void> {
     // --- 5. Prepare Log Stream ---
     const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
 
-    // --- 5. Prepare Arguments ---
+    // --- 6. Prepare Arguments ---
     const args = [
-      '--prompt-file', promptFilePath,
+      '--prompt', promptContent,
       '--output-format', 'stream-json'
     ];
     if (systemPrompt) {

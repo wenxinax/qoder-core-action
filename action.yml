@@ -2,9 +2,12 @@ name: 'Qoder Core Logic'
 description: 'Downloads and runs the qoder-cli with specified prompts.'
 
 inputs:
+  prompt:
+    description: 'The main prompt string. Mutually exclusive with prompt_file_path.'
+    required: false
   prompt_file_path:
-    description: 'The path to the file containing the main prompt.'
-    required: true
+    description: 'The path to the file containing the main prompt. Mutually exclusive with prompt.'
+    required: false
   system_prompt:
     description: 'An optional system prompt to guide the qoder-cli.'
     required: false
