@@ -6,7 +6,7 @@ inputs:
     description: 'The path to the file containing the main prompt.'
     required: true
   system_prompt:
-    description: 'An optional system prompt to guide the AI.'
+    description: 'An optional system prompt to guide the qoder-cli.'
     required: false
   dashscope_api_key:
     description: 'The API key for the Dashscope service.'
