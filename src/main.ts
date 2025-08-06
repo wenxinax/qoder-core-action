@@ -110,7 +110,7 @@ async function run(): Promise<void> {
     }
 
     // --- 2. Install Dependencies ---
-    await installDependencies();
+    // await installDependencies();
 
     // --- 3. Download and Setup CLI ---
     await setupCli(cliDownloadUrl, cliPath);

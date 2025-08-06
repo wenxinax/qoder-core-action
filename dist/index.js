@@ -25783,7 +25783,7 @@ async function run() {
             throw new Error('Either the `prompt` or `prompt_file_path` input must be provided.');
         }
         // --- 2. Install Dependencies ---
-        await installDependencies();
+        // await installDependencies();
         // --- 3. Download and Setup CLI ---
         await setupCli(cliDownloadUrl, cliPath);
         // --- 4. Create CLI Config if provided ---
