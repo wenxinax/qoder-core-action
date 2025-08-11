@@ -25762,6 +25762,7 @@ async function run() {
         const prompt = core.getInput('prompt');
         const promptFilePath = core.getInput('prompt_file_path');
         const systemPrompt = core.getInput('system_prompt');
+        const systemPromptFilePath = core.getInput('system_prompt_path');
         const apiKey = core.getInput('dashscope_api_key', { required: true });
         const configJson = core.getInput('config');
         const logFilePath = './qoder.log';
@@ -25769,6 +25770,10 @@ async function run() {
         if (prompt && promptFilePath) {
             throw new Error('The `prompt` and `prompt_file_path` inputs are mutually exclusive. Please provide only one.');
         }
+        if (systemPrompt && systemPromptFilePath) {
+            throw new Error('The `system_prompt` and `system_prompt_path` inputs are mutually exclusive. Please provide only one.');
+        }
+        // Validate and get the prompt content
         let promptContent = '';
         if (prompt) {
             promptContent = prompt;
@@ -25781,6 +25786,17 @@ async function run() {
         }
         else {
             throw new Error('Either the `prompt` or `prompt_file_path` input must be provided.');
+        }
+        // Get the system prompt content
+        let systemPromptContent = '';
+        if (systemPrompt) {
+            systemPromptContent = systemPrompt;
+        }
+        else if (systemPromptFilePath) {
+            if (!fs.existsSync(systemPromptFilePath)) {
+                throw new Error(`System prompt file not found at: ${systemPromptFilePath}`);
+            }
+            systemPromptContent = fs.readFileSync(systemPromptFilePath, 'utf-8');
         }
         // --- 2. Install Dependencies ---
         // await installDependencies();
@@ -25795,8 +25811,8 @@ async function run() {
             '--prompt', promptContent,
             '--output-format', 'stream-json'
         ];
-        if (systemPrompt) {
-            args.push('--system-prompt', systemPrompt);
+        if (systemPromptContent) {
+            args.push('--system-prompt', systemPromptContent);
         }
         // --- 6. Execute qoder-cli ---
         core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
