@@ -5,7 +5,7 @@ inputs:
   prompt:
     description: 'The main prompt string. Mutually exclusive with prompt_file_path.'
     required: false
-  prompt_file_path:
+  prompt_path:
     description: 'The path to the file containing the main prompt. Mutually exclusive with prompt.'
     required: false
   system_prompt:

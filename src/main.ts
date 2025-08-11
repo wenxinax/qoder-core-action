@@ -1,3 +1,4 @@
+
 import * as core from '@actions/core';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -86,7 +87,7 @@ async function run(): Promise<void> {
     const cliDownloadUrl = 'https://lingma-agents-public.oss-cn-hangzhou.aliyuncs.com/qoder-cli/qoder-cli-linux-amd64';
     const cliPath = path.join(process.cwd(), 'qoder-cli');
     const prompt = core.getInput('prompt');
-    const promptFilePath = core.getInput('prompt_file_path');
+    const promptPath = core.getInput('prompt_path');
     const systemPrompt = core.getInput('system_prompt');
     const systemPromptFilePath = core.getInput('system_prompt_path');
     const apiKey = core.getInput('dashscope_api_key', { required: true });
@@ -94,24 +95,23 @@ async function run(): Promise<void> {
     const logFilePath = './qoder.log';
 
     // Validate and get the prompt content
-    if (prompt && promptFilePath) {
-      throw new Error('The `prompt` and `prompt_file_path` inputs are mutually exclusive. Please provide only one.');
+    if (prompt && promptPath) {
+      throw new Error('The `prompt` and `prompt_path` inputs are mutually exclusive. Please provide only one.');
     }
     if (systemPrompt && systemPromptFilePath) {
       throw new Error('The `system_prompt` and `system_prompt_path` inputs are mutually exclusive. Please provide only one.');
     }
 
-    // Validate and get the prompt content
     let promptContent = '';
     if (prompt) {
       promptContent = prompt;
-    } else if (promptFilePath) {
-      if (!fs.existsSync(promptFilePath)) {
-        throw new Error(`Prompt file not found at: ${promptFilePath}`);
+    } else if (promptPath) {
+      if (!fs.existsSync(promptPath)) {
+        throw new Error(`Prompt file not found at: ${promptPath}`);
       }
-      promptContent = fs.readFileSync(promptFilePath, 'utf-8');
+      promptContent = fs.readFileSync(promptPath, 'utf-8');
     } else {
-      throw new Error('Either the `prompt` or `prompt_file_path` input must be provided.');
+      throw new Error('Either the `prompt` or `prompt_path` input must be provided.');
     }
 
     // Get the system prompt content
