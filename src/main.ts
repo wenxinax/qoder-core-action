@@ -93,6 +93,10 @@ async function run(): Promise<void> {
     const apiKey = core.getInput('dashscope_api_key', { required: true });
     const configJson = core.getInput('config');
     const githubToken = core.getInput('github_token');
+    core.info(`--- Qoder Core Action ---`);
+    core.info(`Received github_token with length: ${githubToken?.length || 0}`);
+    core.debug(`Received github_token (first 10): ${githubToken?.substring(0, 10)}`);
+    core.info(`-------------------------`);
     const logFilePath = './qoder.log';
 
     // Validate and get the prompt content
@@ -149,13 +153,16 @@ async function run(): Promise<void> {
 
     // --- 6. Execute qoder-cli ---
     core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
-    const qoderProcess = spawn(cliPath, args, {
-      env: {
-        ...process.env, // Inherit parent process env
-        DASHSCOPE_API_KEY: apiKey,
-        ...(githubToken && { GITHUB_TOKEN: githubToken })
-      }
-    });
+    const env = {
+      ...process.env,
+      DASHSCOPE_API_KEY: apiKey,
+      ...(githubToken && { GITHUB_TOKEN: githubToken })
+    };
+    core.info('Setting environment variables for qoder-cli:');
+    core.info(`- DASHSCOPE_API_KEY: ***`);
+    core.info(`- GITHUB_TOKEN: ${githubToken ? '***' : 'not set'}`);
+
+    const qoderProcess = spawn(cliPath, args, { env });
 
     let lastJsonLine = '';
 
