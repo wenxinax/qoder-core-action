@@ -25765,6 +25765,7 @@ async function run() {
         const systemPromptFilePath = core.getInput('system_prompt_path');
         const apiKey = core.getInput('dashscope_api_key', { required: true });
         const configJson = core.getInput('config');
+        const githubToken = core.getInput('github_token');
         const logFilePath = './qoder.log';
         // Validate and get the prompt content
         if (prompt && promptPath) {
@@ -25818,7 +25819,8 @@ async function run() {
         const qoderProcess = (0, child_process_1.spawn)(cliPath, args, {
             env: {
                 ...process.env, // Inherit parent process env
-                DASHSCOPE_API_KEY: apiKey
+                DASHSCOPE_API_KEY: apiKey,
+                ...(githubToken && { GITHUB_TOKEN: githubToken })
             }
         });
         let lastJsonLine = '';
