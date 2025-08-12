@@ -96,6 +96,8 @@ async function run(): Promise<void> {
     core.info(`Core Action: OIDC Token received. Length: ${oidcToken?.length || 0}`);
     if (oidcToken) {
       core.info(`Core Action: Token preview: ${oidcToken.substring(0, 8)}...${oidcToken.substring(oidcToken.length - 8)}`);
+      core.exportVariable('GITHUB_TOKEN', oidcToken);
+      core.info('Exported GITHUB_TOKEN as a global environment variable.');
     }
     core.info(`--- Qoder Core Action ---`);
     core.info(`Received github_token with length: ${oidcToken?.length || 0}`);
@@ -157,16 +159,12 @@ async function run(): Promise<void> {
 
     // --- 6. Execute qoder-cli ---
     core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
-    const env = {
-      ...process.env,
-      DASHSCOPE_API_KEY: apiKey,
-      ...(oidcToken && { GITHUB_TOKEN: oidcToken })
-    };
-    core.info('Setting environment variables for qoder-cli:');
-    core.info(`- DASHSCOPE_API_KEY: ***`);
-    core.info(`- GITHUB_TOKEN-oidc-token: ${oidcToken ? '***' : 'not set'}`);
-
-    const qoderProcess = spawn(cliPath, args, { env });
+    const qoderProcess = spawn(cliPath, args, {
+      env: {
+        ...process.env,
+        DASHSCOPE_API_KEY: apiKey
+      }
+    });
 
     let lastJsonLine = '';
 
