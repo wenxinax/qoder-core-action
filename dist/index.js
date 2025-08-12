@@ -25685,6 +25685,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
 const fs = __importStar(__nccwpck_require__(9896));
 const path = __importStar(__nccwpck_require__(6928));
+const os = __importStar(__nccwpck_require__(857));
 const child_process_1 = __nccwpck_require__(5317);
 const http_client_1 = __nccwpck_require__(4844);
 // Function to create the .qoder-cli.json file if config is provided
@@ -25768,8 +25769,17 @@ async function run() {
         const oidcToken = core.getInput('oidc_token');
         if (oidcToken) {
             core.info('Setting up git authentication...');
-            const gitExtraHeaderCommand = `git config --global url."https://x-access-token:${oidcToken}@github.com/".insteadOf "https://github.com/"`;
-            (0, child_process_1.execSync)(gitExtraHeaderCommand, { stdio: 'inherit' });
+            // URL rewriting for HTTPS URLs
+            const gitUrlRewriteCommand = `git config --global url."https://x-access-token:${oidcToken}@github.com/".insteadOf "https://github.com/"`;
+            (0, child_process_1.execSync)(gitUrlRewriteCommand, { stdio: 'inherit' });
+            // Set credential helper
+            (0, child_process_1.execSync)('git config --global credential.helper store', { stdio: 'inherit' });
+            // Create git credentials file
+            const credentialsContent = `https://x-access-token:${oidcToken}@github.com`;
+            fs.writeFileSync(path.join(os.homedir(), '.git-credentials'), credentialsContent);
+            // Set git user identity
+            (0, child_process_1.execSync)('git config --global user.name "qoder-action"', { stdio: 'inherit' });
+            (0, child_process_1.execSync)('git config --global user.email "qoder-action@github.com"', { stdio: 'inherit' });
             core.info('Git authentication configured successfully.');
             core.setSecret(oidcToken);
         }

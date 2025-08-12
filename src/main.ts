@@ -2,6 +2,7 @@
 import * as core from '@actions/core';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 import { spawn, execSync } from 'child_process';
 import { HttpClient } from '@actions/http-client';
 
@@ -95,8 +96,22 @@ async function run(): Promise<void> {
     const oidcToken = core.getInput('oidc_token');
     if (oidcToken) {
       core.info('Setting up git authentication...');
-      const gitExtraHeaderCommand = `git config --global url."https://x-access-token:${oidcToken}@github.com/".insteadOf "https://github.com/"`;
-      execSync(gitExtraHeaderCommand, { stdio: 'inherit' });
+      
+      // URL rewriting for HTTPS URLs
+      const gitUrlRewriteCommand = `git config --global url."https://x-access-token:${oidcToken}@github.com/".insteadOf "https://github.com/"`;
+      execSync(gitUrlRewriteCommand, { stdio: 'inherit' });
+      
+      // Set credential helper
+      execSync('git config --global credential.helper store', { stdio: 'inherit' });
+      
+      // Create git credentials file
+      const credentialsContent = `https://x-access-token:${oidcToken}@github.com`;
+      fs.writeFileSync(path.join(os.homedir(), '.git-credentials'), credentialsContent);
+      
+      // Set git user identity
+      execSync('git config --global user.name "qoder-action"', { stdio: 'inherit' });
+      execSync('git config --global user.email "qoder-action@github.com"', { stdio: 'inherit' });
+      
       core.info('Git authentication configured successfully.');
       core.setSecret(oidcToken);
     }
