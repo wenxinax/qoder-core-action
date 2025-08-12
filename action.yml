@@ -20,8 +20,8 @@ inputs:
   config:
     description: 'An optional JSON string to configure qoder-cli. This will be written to .qoder-cli.json.'
     required: false
-  oidc_token:
-    description: 'The OIDC token for authentication.'
+  github_token:
+    description: 'The GitHub token for authentication.'
     required: false
 
 

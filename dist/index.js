@@ -25765,10 +25765,10 @@ async function run() {
         const systemPromptFilePath = core.getInput('system_prompt_path');
         const apiKey = core.getInput('dashscope_api_key', { required: true });
         const configJson = core.getInput('config');
-        const oidcToken = core.getInput('oidc_token');
-        if (oidcToken) {
-            core.info('OIDC token received, will be used for git operations');
-            core.setSecret(oidcToken);
+        const githubToken = core.getInput('github_token');
+        if (githubToken) {
+            core.info('GitHub token received, will be used for git operations');
+            core.setSecret(githubToken);
         }
         const logFilePath = './qoder.log';
         // Validate and get the prompt content
