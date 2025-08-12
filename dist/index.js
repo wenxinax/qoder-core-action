@@ -25769,6 +25769,16 @@ async function run() {
         const oidcToken = core.getInput('oidc_token');
         if (oidcToken) {
             core.info('Setting up git authentication...');
+            // Clear any existing git credentials
+            try {
+                (0, child_process_1.execSync)('git config --global --unset-all credential.helper', { stdio: 'inherit' });
+            }
+            catch (e) { /* ignore if not set */ }
+            // Remove existing credentials file
+            const credentialsFile = path.join(os.homedir(), '.git-credentials');
+            if (fs.existsSync(credentialsFile)) {
+                fs.unlinkSync(credentialsFile);
+            }
             // URL rewriting for HTTPS URLs
             const gitUrlRewriteCommand = `git config --global url."https://x-access-token:${oidcToken}@github.com/".insteadOf "https://github.com/"`;
             (0, child_process_1.execSync)(gitUrlRewriteCommand, { stdio: 'inherit' });
@@ -25776,7 +25786,7 @@ async function run() {
             (0, child_process_1.execSync)('git config --global credential.helper store', { stdio: 'inherit' });
             // Create git credentials file
             const credentialsContent = `https://x-access-token:${oidcToken}@github.com`;
-            fs.writeFileSync(path.join(os.homedir(), '.git-credentials'), credentialsContent);
+            fs.writeFileSync(credentialsFile, credentialsContent);
             // Set git user identity
             (0, child_process_1.execSync)('git config --global user.name "qoder-action"', { stdio: 'inherit' });
             (0, child_process_1.execSync)('git config --global user.email "qoder-action@github.com"', { stdio: 'inherit' });
@@ -25837,8 +25847,12 @@ async function run() {
             env: {
                 ...process.env,
                 DASHSCOPE_API_KEY: apiKey,
-                GITHUB_TOKEN: oidcToken,
-                GH_TOKEN: oidcToken
+                GITHUB_TOKEN: oidcToken || '',
+                GH_TOKEN: oidcToken || '',
+                // Clear default GitHub Actions tokens
+                ACTIONS_RUNTIME_TOKEN: '',
+                ACTIONS_ID_TOKEN_REQUEST_TOKEN: '',
+                ACTIONS_ID_TOKEN_REQUEST_URL: ''
             }
         });
         let lastJsonLine = '';
