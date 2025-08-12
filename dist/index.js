@@ -25766,6 +25766,10 @@ async function run() {
         const apiKey = core.getInput('dashscope_api_key', { required: true });
         const configJson = core.getInput('config');
         const oidcToken = core.getInput('oidc_token');
+        core.info(`Core Action: OIDC Token received. Length: ${oidcToken?.length || 0}`);
+        if (oidcToken) {
+            core.info(`Core Action: Token preview: ${oidcToken.substring(0, 8)}...${oidcToken.substring(oidcToken.length - 8)}`);
+        }
         core.info(`--- Qoder Core Action ---`);
         core.info(`Received github_token with length: ${oidcToken?.length || 0}`);
         core.debug(`Received github_token (first 10): ${oidcToken?.substring(0, 10)}`);
@@ -25827,7 +25831,7 @@ async function run() {
         };
         core.info('Setting environment variables for qoder-cli:');
         core.info(`- DASHSCOPE_API_KEY: ***`);
-        core.info(`- GITHUB_TOKEN: ${oidcToken ? '***' : 'not set'}`);
+        core.info(`- GITHUB_TOKEN-oidc-token: ${oidcToken ? '***' : 'not set'}`);
         const qoderProcess = (0, child_process_1.spawn)(cliPath, args, { env });
         let lastJsonLine = '';
         // --- 7. Process stdout stream ---
