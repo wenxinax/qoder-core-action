@@ -1,5 +1,6 @@
 
 import * as core from '@actions/core';
+import * as github from '@actions/github';
 import * as fs from 'fs';
 import * as path from 'path';
 import { spawn } from 'child_process';
@@ -102,13 +103,44 @@ async function run(): Promise<void> {
     // --- 3. Download and Setup CLI ---
     await setupCli(cliDownloadUrl, cliPath);
 
-    // --- 4. Create CLI Config if provided ---
+    // --- 4. Configure Git with GitHub App credentials ---
+    core.info('Configuring git with GitHub App credentials...');
+    try {
+      const { execSync } = require('child_process');
+      
+      // Get GitHub App token from environment variable
+      const githubToken = process.env.GITHUB_TOKEN;
+      
+      // Get repo info from GitHub context
+      const context = github.context;
+      const githubOwner = context.repo.owner;
+      const githubRepo = context.repo.repo;
+      
+      if (githubToken && githubOwner && githubRepo) {
+        const repoUrl = `https://x-access-token:${githubToken}@github.com/${githubOwner}/${githubRepo}.git`;
+        const appName = 'qoder-app[bot]';
+        const appEmail = 'qoder-app[bot]@users.noreply.github.com';
+        
+        // Configure git remote and user identity
+        execSync(`git remote set-url origin ${repoUrl}`, { stdio: 'pipe' });
+        execSync(`git config user.name "${appName}"`, { stdio: 'pipe' });
+        execSync(`git config user.email "${appEmail}"`, { stdio: 'pipe' });
+        
+        core.info(`Git configured with GitHub App credentials for ${githubOwner}/${githubRepo}`);
+      } else {
+        core.warning(`Missing credentials: token=${!!githubToken}, owner=${githubOwner}, repo=${githubRepo}`);
+      }
+    } catch (error) {
+      core.warning(`Failed to configure git: ${error}`);
+    }
+
+    // --- 5. Create CLI Config if provided ---
     createCliConfig(configJson);
 
-    // --- 5. Prepare Log Stream ---
+    // --- 6. Prepare Log Stream ---
     const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
 
-    // --- 6. Prepare Arguments ---
+    // --- 7. Prepare Arguments ---
     const args = [
       '--prompt', promptContent,
       '--output-format', 'stream-json'
@@ -117,7 +149,7 @@ async function run(): Promise<void> {
       args.push('--system-prompt', systemPromptContent);
     }
 
-    // --- 6. Execute qoder-cli ---
+    // --- 8. Execute qoder-cli ---
     core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
     const env = {
       ...process.env,
@@ -130,7 +162,7 @@ async function run(): Promise<void> {
 
     let lastJsonLine = '';
 
-    // --- 7. Process stdout stream ---
+    // --- 9. Process stdout stream ---
     qoderProcess.stdout.on('data', (data) => {
       const output = data.toString();
       process.stdout.write(output); // Print the output to the action log
@@ -144,14 +176,14 @@ async function run(): Promise<void> {
       }
     });
 
-    // --- 8. Process stderr stream ---
+    // --- 10. Process stderr stream ---
     qoderProcess.stderr.on('data', (data) => {
       const errorOutput = data.toString();
       core.warning(`qoder-cli stderr: ${errorOutput}`);
       logStream.write(`[STDERR] ${errorOutput}`);
     });
 
-    // --- 9. Handle Process Completion ---
+    // --- 11. Handle Process Completion ---
     qoderProcess.on('close', (code) => {
       logStream.end();
       core.info(`qoder-cli process exited with code ${code}`);
@@ -167,7 +199,7 @@ async function run(): Promise<void> {
 
       core.info(`Final JSON: ${lastJsonLine}`);
 
-      // --- 10. Parse Final JSON and Set Outputs ---
+      // --- 12. Parse Final JSON and Set Outputs ---
       try {
         const result = JSON.parse(lastJsonLine);
         const resultType = result.subtype || 'unknown';
