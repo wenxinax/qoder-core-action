@@ -2,7 +2,7 @@
 import * as core from '@actions/core';
 import * as fs from 'fs';
 import * as path from 'path';
-import { spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
 import { HttpClient } from '@actions/http-client';
 
 // Function to create the .qoder-cli.json file if config is provided
@@ -93,16 +93,13 @@ async function run(): Promise<void> {
     const apiKey = core.getInput('dashscope_api_key', { required: true });
     const configJson = core.getInput('config');
     const oidcToken = core.getInput('oidc_token');
-    core.info(`Core Action: OIDC Token received. Length: ${oidcToken?.length || 0}`);
     if (oidcToken) {
-      core.info(`Core Action: Token preview: ${oidcToken.substring(0, 8)}...${oidcToken.substring(oidcToken.length - 8)}`);
-      core.exportVariable('GITHUB_TOKEN', oidcToken);
-      core.info('Exported GITHUB_TOKEN as a global environment variable.');
+      core.info('Setting up git authentication...');
+      const gitExtraHeaderCommand = `git config --global url."https://x-access-token:${oidcToken}@github.com/".insteadOf "https://github.com/"`;
+      execSync(gitExtraHeaderCommand, { stdio: 'inherit' });
+      core.info('Git authentication configured successfully.');
+      core.setSecret(oidcToken);
     }
-    core.info(`--- Qoder Core Action ---`);
-    core.info(`Received github_token with length: ${oidcToken?.length || 0}`);
-    core.debug(`Received github_token (first 10): ${oidcToken?.substring(0, 10)}`);
-    core.info(`-------------------------`);
     const logFilePath = './qoder.log';
 
     // Validate and get the prompt content
@@ -159,12 +156,7 @@ async function run(): Promise<void> {
 
     // --- 6. Execute qoder-cli ---
     core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
-    const qoderProcess = spawn(cliPath, args, {
-      env: {
-        ...process.env,
-        DASHSCOPE_API_KEY: apiKey
-      }
-    });
+    const qoderProcess = spawn(cliPath, args);
 
     let lastJsonLine = '';
 
