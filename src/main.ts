@@ -28,35 +28,6 @@ function createCliConfig(configJson: string): void {
   }
 }
 
-// Function to install dependencies
-async function installDependencies(): Promise<void> {
-  core.info('Installing required dependencies: ripgrep and fzf...');
-
-  return new Promise<void>((resolve) => {
-    const command = `
-      set -e
-      sudo apt-get update
-      sudo apt-get install -y ripgrep fzf
-    `;
-
-    const installProcess = spawn('bash', ['-c', command], { stdio: 'inherit' });
-
-    installProcess.on('close', (code) => {
-      if (code === 0) {
-        core.info('Dependencies installed successfully.');
-      } else {
-        core.warning(`Dependency installation failed with code ${code}. The action might not work as expected.`);
-      }
-      // Resolve anyway, as the CLI might still work without these dependencies or they might be pre-installed.
-      resolve();
-    });
-
-    installProcess.on('error', (error) => {
-      core.warning(`Error during dependency installation: ${error.message}. The action might not work as expected.`);
-      resolve();
-    });
-  });
-}
 
 // Function to download the CLI tool
 async function setupCli(url: string, dest: string): Promise<void> {
@@ -92,11 +63,6 @@ async function run(): Promise<void> {
     const systemPromptFilePath = core.getInput('system_prompt_path');
     const apiKey = core.getInput('dashscope_api_key', { required: true });
     const configJson = core.getInput('config');
-    const githubToken = core.getInput('github_token');
-    core.info(`--- Qoder Core Action ---`);
-    core.info(`Received github_token with length: ${githubToken?.length || 0}`);
-    core.debug(`Received github_token (first 10): ${githubToken?.substring(0, 10)}`);
-    core.info(`-------------------------`);
     const logFilePath = './qoder.log';
 
     // Validate and get the prompt content
@@ -156,11 +122,9 @@ async function run(): Promise<void> {
     const env = {
       ...process.env,
       DASHSCOPE_API_KEY: apiKey,
-      ...(githubToken && { GITHUB_TOKEN: githubToken })
     };
     core.info('Setting environment variables for qoder-cli:');
     core.info(`- DASHSCOPE_API_KEY: ***`);
-    core.info(`- GITHUB_TOKEN: ${githubToken ? '***' : 'not set'}`);
 
     const qoderProcess = spawn(cliPath, args, { env });
 
