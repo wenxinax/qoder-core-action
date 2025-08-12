@@ -95,35 +95,7 @@ async function run(): Promise<void> {
     const configJson = core.getInput('config');
     const oidcToken = core.getInput('oidc_token');
     if (oidcToken) {
-      core.info('Setting up git authentication...');
-      
-      // Clear any existing git credentials
-      try {
-        execSync('git config --global --unset-all credential.helper', { stdio: 'inherit' });
-      } catch (e) { /* ignore if not set */ }
-      
-      // Remove existing credentials file
-      const credentialsFile = path.join(os.homedir(), '.git-credentials');
-      if (fs.existsSync(credentialsFile)) {
-        fs.unlinkSync(credentialsFile);
-      }
-      
-      // URL rewriting for HTTPS URLs
-      const gitUrlRewriteCommand = `git config --global url."https://x-access-token:${oidcToken}@github.com/".insteadOf "https://github.com/"`;
-      execSync(gitUrlRewriteCommand, { stdio: 'inherit' });
-      
-      // Set credential helper
-      execSync('git config --global credential.helper store', { stdio: 'inherit' });
-      
-      // Create git credentials file
-      const credentialsContent = `https://x-access-token:${oidcToken}@github.com`;
-      fs.writeFileSync(credentialsFile, credentialsContent);
-      
-      // Set git user identity
-      execSync('git config --global user.name "qoder-action"', { stdio: 'inherit' });
-      execSync('git config --global user.email "qoder-action@github.com"', { stdio: 'inherit' });
-      
-      core.info('Git authentication configured successfully.');
+      core.info('OIDC token received, will be used for git operations');
       core.setSecret(oidcToken);
     }
     const logFilePath = './qoder.log';
@@ -182,16 +154,11 @@ async function run(): Promise<void> {
 
     // --- 6. Execute qoder-cli ---
     core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
+    
     const qoderProcess = spawn(cliPath, args, {
       env: {
         ...process.env,
-        DASHSCOPE_API_KEY: apiKey,
-        GITHUB_TOKEN: oidcToken || '',
-        GH_TOKEN: oidcToken || '',
-        // Clear default GitHub Actions tokens
-        ACTIONS_RUNTIME_TOKEN: '',
-        ACTIONS_ID_TOKEN_REQUEST_TOKEN: '',
-        ACTIONS_ID_TOKEN_REQUEST_URL: ''
+        DASHSCOPE_API_KEY: apiKey
       }
     });
 
