@@ -156,7 +156,14 @@ async function run(): Promise<void> {
 
     // --- 6. Execute qoder-cli ---
     core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
-    const qoderProcess = spawn(cliPath, args);
+    const qoderProcess = spawn(cliPath, args, {
+      env: {
+        ...process.env,
+        DASHSCOPE_API_KEY: apiKey,
+        GITHUB_TOKEN: oidcToken,
+        GH_TOKEN: oidcToken
+      }
+    });
 
     let lastJsonLine = '';
 

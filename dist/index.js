@@ -25823,7 +25823,14 @@ async function run() {
         }
         // --- 6. Execute qoder-cli ---
         core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
-        const qoderProcess = (0, child_process_1.spawn)(cliPath, args);
+        const qoderProcess = (0, child_process_1.spawn)(cliPath, args, {
+            env: {
+                ...process.env,
+                DASHSCOPE_API_KEY: apiKey,
+                GITHUB_TOKEN: oidcToken,
+                GH_TOKEN: oidcToken
+            }
+        });
         let lastJsonLine = '';
         // --- 7. Process stdout stream ---
         qoderProcess.stdout.on('data', (data) => {
