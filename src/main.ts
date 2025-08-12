@@ -1,6 +1,5 @@
 
 import * as core from '@actions/core';
-import * as github from '@actions/github';
 import * as fs from 'fs';
 import * as path from 'path';
 import { spawn } from 'child_process';
@@ -102,37 +101,6 @@ async function run(): Promise<void> {
 
     // --- 3. Download and Setup CLI ---
     await setupCli(cliDownloadUrl, cliPath);
-
-    // --- 4. Configure Git with GitHub App credentials ---
-    core.info('Configuring git with GitHub App credentials...');
-    try {
-      const { execSync } = require('child_process');
-      
-      // Get GitHub App token from environment variable
-      const githubToken = process.env.GITHUB_TOKEN;
-      
-      // Get repo info from GitHub context
-      const context = github.context;
-      const githubOwner = context.repo.owner;
-      const githubRepo = context.repo.repo;
-      
-      if (githubToken && githubOwner && githubRepo) {
-        const repoUrl = `https://x-access-token:${githubToken}@github.com/${githubOwner}/${githubRepo}.git`;
-        const appName = 'qoder-app[bot]';
-        const appEmail = 'qoder-app[bot]@users.noreply.github.com';
-        
-        // Configure git remote and user identity
-        execSync(`git remote set-url origin ${repoUrl}`, { stdio: 'pipe' });
-        execSync(`git config user.name "${appName}"`, { stdio: 'pipe' });
-        execSync(`git config user.email "${appEmail}"`, { stdio: 'pipe' });
-        
-        core.info(`Git configured with GitHub App credentials for ${githubOwner}/${githubRepo}`);
-      } else {
-        core.warning(`Missing credentials: token=${!!githubToken}, owner=${githubOwner}, repo=${githubRepo}`);
-      }
-    } catch (error) {
-      core.warning(`Failed to configure git: ${error}`);
-    }
 
     // --- 5. Create CLI Config if provided ---
     createCliConfig(configJson);
