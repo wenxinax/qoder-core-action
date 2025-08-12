@@ -1,4 +1,4 @@
-name: 'Qoder Core Logic'
+name: 'Qoder Core Action'
 description: 'Downloads and runs the qoder-cli with specified prompts.'
 
 inputs:
@@ -20,10 +20,6 @@ inputs:
   config:
     description: 'An optional JSON string to configure qoder-cli. This will be written to .qoder-cli.json.'
     required: false
-  github_token:
-    description: 'The GitHub token for authentication.'
-    required: false
-
 
 
 runs:
