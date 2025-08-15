@@ -8,12 +8,6 @@ inputs:
   prompt_path:
     description: 'The path to the file containing the main prompt. Mutually exclusive with prompt.'
     required: false
-  system_prompt:
-    description: 'The system prompt string. Mutually exclusive with system_prompt_path.'
-    required: false
-  system_prompt_path:
-    description: 'The path to the file containing the system prompt. Mutually exclusive with system_prompt.'
-    required: false
   qoder_user_info:
     description: 'User information for Qoder authentication.'
     required: true

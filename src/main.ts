@@ -59,8 +59,6 @@ async function run(): Promise<void> {
     const cliPath = path.join(process.cwd(), 'qoder-cli');
     const prompt = core.getInput('prompt');
     const promptPath = core.getInput('prompt_path');
-    const systemPrompt = core.getInput('system_prompt');
-    const systemPromptFilePath = core.getInput('system_prompt_path');
     const qoderUserInfo = core.getInput('qoder_user_info', { required: true });
     const qoderMachineId = core.getInput('qoder_machine_id', { required: true });
     const configJson = core.getInput('config');
@@ -69,9 +67,6 @@ async function run(): Promise<void> {
     // Validate and get the prompt content
     if (prompt && promptPath) {
       throw new Error('The `prompt` and `prompt_path` inputs are mutually exclusive. Please provide only one.');
-    }
-    if (systemPrompt && systemPromptFilePath) {
-      throw new Error('The `system_prompt` and `system_prompt_path` inputs are mutually exclusive. Please provide only one.');
     }
 
     let promptContent = '';
@@ -87,15 +82,6 @@ async function run(): Promise<void> {
     }
 
     // Get the system prompt content
-    let systemPromptContent = '';
-    if (systemPrompt) {
-      systemPromptContent = systemPrompt;
-    } else if (systemPromptFilePath) {
-      if (!fs.existsSync(systemPromptFilePath)) {
-        throw new Error(`System prompt file not found at: ${systemPromptFilePath}`);
-      }
-      systemPromptContent = fs.readFileSync(systemPromptFilePath, 'utf-8');
-    }
 
     // --- 2. Install Dependencies ---
     // await installDependencies();
@@ -114,9 +100,6 @@ async function run(): Promise<void> {
       '-p', promptContent,
       '--output-format', 'stream-json'
     ];
-    if (systemPromptContent) {
-      args.push('--system-prompt', systemPromptContent);
-    }
 
     // --- 8. Execute qoder-cli ---
     core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);

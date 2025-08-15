@@ -25735,8 +25735,6 @@ async function run() {
         const cliPath = path.join(process.cwd(), 'qoder-cli');
         const prompt = core.getInput('prompt');
         const promptPath = core.getInput('prompt_path');
-        const systemPrompt = core.getInput('system_prompt');
-        const systemPromptFilePath = core.getInput('system_prompt_path');
         const qoderUserInfo = core.getInput('qoder_user_info', { required: true });
         const qoderMachineId = core.getInput('qoder_machine_id', { required: true });
         const configJson = core.getInput('config');
@@ -25744,9 +25742,6 @@ async function run() {
         // Validate and get the prompt content
         if (prompt && promptPath) {
             throw new Error('The `prompt` and `prompt_path` inputs are mutually exclusive. Please provide only one.');
-        }
-        if (systemPrompt && systemPromptFilePath) {
-            throw new Error('The `system_prompt` and `system_prompt_path` inputs are mutually exclusive. Please provide only one.');
         }
         let promptContent = '';
         if (prompt) {
@@ -25762,16 +25757,6 @@ async function run() {
             throw new Error('Either the `prompt` or `prompt_path` input must be provided.');
         }
         // Get the system prompt content
-        let systemPromptContent = '';
-        if (systemPrompt) {
-            systemPromptContent = systemPrompt;
-        }
-        else if (systemPromptFilePath) {
-            if (!fs.existsSync(systemPromptFilePath)) {
-                throw new Error(`System prompt file not found at: ${systemPromptFilePath}`);
-            }
-            systemPromptContent = fs.readFileSync(systemPromptFilePath, 'utf-8');
-        }
         // --- 2. Install Dependencies ---
         // await installDependencies();
         // --- 3. Download and Setup CLI ---
@@ -25785,9 +25770,6 @@ async function run() {
             '-p', promptContent,
             '--output-format', 'stream-json'
         ];
-        if (systemPromptContent) {
-            args.push('--system-prompt', systemPromptContent);
-        }
         // --- 8. Execute qoder-cli ---
         core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
         const env = {
