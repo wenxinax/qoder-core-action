@@ -61,7 +61,8 @@ async function run(): Promise<void> {
     const promptPath = core.getInput('prompt_path');
     const systemPrompt = core.getInput('system_prompt');
     const systemPromptFilePath = core.getInput('system_prompt_path');
-    const apiKey = core.getInput('dashscope_api_key', { required: true });
+    const qoderUserInfo = core.getInput('qoder_user_info', { required: true });
+    const qoderMachineId = core.getInput('qoder_machine_id', { required: true });
     const configJson = core.getInput('config');
     const logFilePath = './qoder.log';
 
@@ -121,10 +122,12 @@ async function run(): Promise<void> {
     core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
     const env = {
       ...process.env,
-      DASHSCOPE_API_KEY: apiKey,
+      QODER_USER_INFO: qoderUserInfo,
+      QODER_MACHINE_ID: qoderMachineId,
     };
     core.info('Setting environment variables for qoder-cli:');
-    core.info(`- DASHSCOPE_API_KEY: ***`);
+    core.info(`- QODER_USER_INFO: ***`);
+    core.info(`- QODER_MACHINE_ID: ${qoderMachineId}`);
 
     const qoderProcess = spawn(cliPath, args, { env });
 

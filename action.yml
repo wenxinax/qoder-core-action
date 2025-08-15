@@ -14,8 +14,11 @@ inputs:
   system_prompt_path:
     description: 'The path to the file containing the system prompt. Mutually exclusive with system_prompt.'
     required: false
-  dashscope_api_key:
-    description: 'The API key for the Dashscope service.'
+  qoder_user_info:
+    description: 'User information for Qoder authentication.'
+    required: true
+  qoder_machine_id:
+    description: 'Machine ID for Qoder authentication.'
     required: true
   config:
     description: 'An optional JSON string to configure qoder-cli. This will be written to .qoder-cli.json.'
