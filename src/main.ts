@@ -105,7 +105,8 @@ async function run(): Promise<void> {
     const args = [
       '-w', process.cwd(),
       '-p', promptContent,
-      '--output-format', 'stream-json'
+      '--output-format', 'stream-json',
+      '--dangerously-skip-permissions'
     ];
 
     // --- 8. Execute qoder-cli ---

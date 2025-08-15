@@ -25776,7 +25776,8 @@ async function run() {
         const args = [
             '-w', process.cwd(),
             '-p', promptContent,
-            '--output-format', 'stream-json'
+            '--output-format', 'stream-json',
+            '--dangerously-skip-permissions'
         ];
         // --- 8. Execute qoder-cli ---
         core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
