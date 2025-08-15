@@ -25782,7 +25782,7 @@ async function run() {
         const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
         // --- 7. Prepare Arguments ---
         const args = [
-            '--prompt', promptContent,
+            '-p', promptContent,
             '--output-format', 'stream-json'
         ];
         if (systemPromptContent) {

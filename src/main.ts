@@ -111,7 +111,7 @@ async function run(): Promise<void> {
 
     // --- 7. Prepare Arguments ---
     const args = [
-      '--prompt', promptContent,
+      '-p', promptContent,
       '--output-format', 'stream-json'
     ];
     if (systemPromptContent) {
