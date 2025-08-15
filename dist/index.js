@@ -25739,6 +25739,25 @@ async function run() {
         // await installDependencies();
         // --- 3. Download and Setup CLI ---
         await setupCli(cliDownloadUrl, cliPath);
+        // --- 4. DEBUG: List MCP servers ---
+        core.info('--- Running MCP List Debug Step ---');
+        try {
+            core.info('--- Printing .mcp.json content ---');
+            const catProcess = (0, child_process_1.spawnSync)('cat', ['.mcp.json'], { encoding: 'utf-8' });
+            core.info(catProcess.stdout);
+            core.info('--- End of .mcp.json content ---');
+            const mcpListProcess = (0, child_process_1.spawnSync)(cliPath, ['mcp', 'list'], { encoding: 'utf-8' });
+            core.info(`MCP List STDOUT:\n${mcpListProcess.stdout}`);
+            if (mcpListProcess.stderr) {
+                core.warning(`MCP List STDERR:\n${mcpListProcess.stderr}`);
+            }
+        }
+        catch (e) {
+            if (e instanceof Error) {
+                core.warning(`MCP List command failed: ${e.message}`);
+            }
+        }
+        core.info('--- End of MCP List Debug Step ---');
         // --- 6. Prepare Log Stream ---
         const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
         // --- 7. Prepare Arguments ---
