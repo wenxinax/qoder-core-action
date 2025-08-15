@@ -25748,11 +25748,17 @@ async function run() {
         // --- 4. DEBUG: List MCP servers ---
         core.info('--- Running MCP List Debug Step ---');
         try {
+            core.info('--- Debug: Printing current directory and contents ---');
+            const pwdProcess = (0, child_process_1.spawnSync)('pwd', { encoding: 'utf-8' });
+            core.info(`Current directory (pwd): ${pwdProcess.stdout}`);
+            const lsProcess = (0, child_process_1.spawnSync)('ls', ['-la'], { encoding: 'utf-8' });
+            core.info(`Directory contents (ls -la):\n${lsProcess.stdout}`);
+            core.info('--- End of directory debug ---');
             core.info('--- Printing .mcp.json content ---');
             const catProcess = (0, child_process_1.spawnSync)('cat', ['.mcp.json'], { encoding: 'utf-8' });
             core.info(catProcess.stdout);
             core.info('--- End of .mcp.json content ---');
-            const mcpListProcess = (0, child_process_1.spawnSync)(cliPath, ['mcp', 'list'], { encoding: 'utf-8', env: env });
+            const mcpListProcess = (0, child_process_1.spawnSync)(cliPath, ['mcp', 'list', '-w', process.cwd()], { encoding: 'utf-8', env: env });
             core.info(`MCP List STDOUT:\n${mcpListProcess.stdout}`);
             if (mcpListProcess.stderr) {
                 core.warning(`MCP List STDERR:\n${mcpListProcess.stderr}`);
@@ -25768,6 +25774,7 @@ async function run() {
         const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
         // --- 7. Prepare Arguments ---
         const args = [
+            '-w', process.cwd(),
             '-p', promptContent,
             '--output-format', 'stream-json'
         ];
