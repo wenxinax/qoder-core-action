@@ -25794,10 +25794,12 @@ async function run() {
             ...process.env,
             QODER_USER_INFO: qoderUserInfo,
             QODER_MACHINE_ID: qoderMachineId,
+            QODER_MODEL: "auto",
         };
         core.info('Setting environment variables for qoder-cli:');
         core.info(`- QODER_USER_INFO: ***`);
         core.info(`- QODER_MACHINE_ID: ${qoderMachineId}`);
+        core.info(`-QODER_MODEL: auto`);
         const qoderProcess = (0, child_process_1.spawn)(cliPath, args, { env });
         let lastJsonLine = '';
         // --- 9. Process stdout stream ---

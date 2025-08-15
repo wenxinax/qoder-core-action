@@ -124,10 +124,12 @@ async function run(): Promise<void> {
       ...process.env,
       QODER_USER_INFO: qoderUserInfo,
       QODER_MACHINE_ID: qoderMachineId,
+      QODER_MODEL: "auto",
     };
     core.info('Setting environment variables for qoder-cli:');
     core.info(`- QODER_USER_INFO: ***`);
     core.info(`- QODER_MACHINE_ID: ${qoderMachineId}`);
+    core.info(`-QODER_MODEL: auto`)
 
     const qoderProcess = spawn(cliPath, args, { env });
 
