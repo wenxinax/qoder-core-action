@@ -14,9 +14,6 @@ inputs:
   qoder_machine_id:
     description: 'Machine ID for Qoder authentication.'
     required: true
-  config:
-    description: 'An optional JSON string to configure qoder-cli. This will be written to .qoder-cli.json.'
-    required: false
 
 
 runs:

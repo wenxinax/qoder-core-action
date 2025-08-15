@@ -25687,27 +25687,6 @@ const fs = __importStar(__nccwpck_require__(9896));
 const path = __importStar(__nccwpck_require__(6928));
 const child_process_1 = __nccwpck_require__(5317);
 const http_client_1 = __nccwpck_require__(4844);
-// Function to create the .qoder-cli.json file if config is provided
-function createCliConfig(configJson) {
-    if (!configJson) {
-        core.info('No config provided, skipping .qoder-cli.json creation.');
-        return;
-    }
-    core.info('Creating .qoder-cli.json from provided config...');
-    try {
-        // Validate if the input is a valid JSON
-        JSON.parse(configJson);
-        const configPath = path.join(process.cwd(), '.qoder-cli.json');
-        fs.writeFileSync(configPath, configJson);
-        core.info(`Successfully created ${configPath}`);
-    }
-    catch (error) {
-        if (error instanceof Error) {
-            throw new Error(`Failed to create .qoder-cli.json: ${error.message}. Please ensure the provided config is a valid JSON string.`);
-        }
-        throw error;
-    }
-}
 // Function to download the CLI tool
 async function setupCli(url, dest) {
     core.info(`Downloading qoder-cli from ${url}...`);
@@ -25737,7 +25716,6 @@ async function run() {
         const promptPath = core.getInput('prompt_path');
         const qoderUserInfo = core.getInput('qoder_user_info', { required: true });
         const qoderMachineId = core.getInput('qoder_machine_id', { required: true });
-        const configJson = core.getInput('config');
         const logFilePath = './qoder.log';
         // Validate and get the prompt content
         if (prompt && promptPath) {
@@ -25761,8 +25739,6 @@ async function run() {
         // await installDependencies();
         // --- 3. Download and Setup CLI ---
         await setupCli(cliDownloadUrl, cliPath);
-        // --- 5. Create CLI Config if provided ---
-        createCliConfig(configJson);
         // --- 6. Prepare Log Stream ---
         const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
         // --- 7. Prepare Arguments ---
@@ -25781,7 +25757,7 @@ async function run() {
         core.info('Setting environment variables for qoder-cli:');
         core.info(`- QODER_USER_INFO: ***`);
         core.info(`- QODER_MACHINE_ID: ${qoderMachineId}`);
-        core.info(`-QODER_MODEL: auto`);
+        core.info(`- QODER_MODEL: auto`);
         const qoderProcess = (0, child_process_1.spawn)(cliPath, args, { env });
         let lastJsonLine = '';
         // --- 9. Process stdout stream ---

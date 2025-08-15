@@ -5,30 +5,6 @@ import * as path from 'path';
 import { spawn } from 'child_process';
 import { HttpClient } from '@actions/http-client';
 
-// Function to create the .qoder-cli.json file if config is provided
-function createCliConfig(configJson: string): void {
-  if (!configJson) {
-    core.info('No config provided, skipping .qoder-cli.json creation.');
-    return;
-  }
-
-  core.info('Creating .qoder-cli.json from provided config...');
-  try {
-    // Validate if the input is a valid JSON
-    JSON.parse(configJson);
-
-    const configPath = path.join(process.cwd(), '.qoder-cli.json');
-    fs.writeFileSync(configPath, configJson);
-    core.info(`Successfully created ${configPath}`);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to create .qoder-cli.json: ${error.message}. Please ensure the provided config is a valid JSON string.`);
-    }
-    throw error;
-  }
-}
-
-
 // Function to download the CLI tool
 async function setupCli(url: string, dest: string): Promise<void> {
   core.info(`Downloading qoder-cli from ${url}...`);
@@ -61,7 +37,6 @@ async function run(): Promise<void> {
     const promptPath = core.getInput('prompt_path');
     const qoderUserInfo = core.getInput('qoder_user_info', { required: true });
     const qoderMachineId = core.getInput('qoder_machine_id', { required: true });
-    const configJson = core.getInput('config');
     const logFilePath = './qoder.log';
 
     // Validate and get the prompt content
@@ -89,9 +64,6 @@ async function run(): Promise<void> {
     // --- 3. Download and Setup CLI ---
     await setupCli(cliDownloadUrl, cliPath);
 
-    // --- 5. Create CLI Config if provided ---
-    createCliConfig(configJson);
-
     // --- 6. Prepare Log Stream ---
     const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
 
@@ -112,7 +84,7 @@ async function run(): Promise<void> {
     core.info('Setting environment variables for qoder-cli:');
     core.info(`- QODER_USER_INFO: ***`);
     core.info(`- QODER_MACHINE_ID: ${qoderMachineId}`);
-    core.info(`-QODER_MODEL: auto`)
+    core.info(`- QODER_MODEL: auto`)
 
     const qoderProcess = spawn(cliPath, args, { env });
 
