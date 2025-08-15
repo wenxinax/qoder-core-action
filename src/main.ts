@@ -39,6 +39,13 @@ async function run(): Promise<void> {
     const qoderMachineId = core.getInput('qoder_machine_id', { required: true });
     const logFilePath = './qoder.log';
 
+    const env = {
+      ...process.env,
+      QODER_USER_INFO: qoderUserInfo,
+      QODER_MACHINE_ID: qoderMachineId,
+      QODER_MODEL: "auto",
+    };
+
     // Validate and get the prompt content
     if (prompt && promptPath) {
       throw new Error('The `prompt` and `prompt_path` inputs are mutually exclusive. Please provide only one.');
@@ -72,7 +79,7 @@ async function run(): Promise<void> {
       core.info(catProcess.stdout);
       core.info('--- End of .mcp.json content ---');
 
-      const mcpListProcess = spawnSync(cliPath, ['mcp', 'list'], { encoding: 'utf-8' });
+      const mcpListProcess = spawnSync(cliPath, ['mcp', 'list'], { encoding: 'utf-8', env: env });
       core.info(`MCP List STDOUT:\n${mcpListProcess.stdout}`);
       if (mcpListProcess.stderr) {
         core.warning(`MCP List STDERR:\n${mcpListProcess.stderr}`);
@@ -95,12 +102,6 @@ async function run(): Promise<void> {
 
     // --- 8. Execute qoder-cli ---
     core.info(`Starting qoder-cli process with args: ${args.join(' ')}`);
-    const env = {
-      ...process.env,
-      QODER_USER_INFO: qoderUserInfo,
-      QODER_MACHINE_ID: qoderMachineId,
-      QODER_MODEL: "auto",
-    };
     core.info('Setting environment variables for qoder-cli:');
     core.info(`- QODER_USER_INFO: ***`);
     core.info(`- QODER_MACHINE_ID: ${qoderMachineId}`);
